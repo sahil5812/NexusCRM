@@ -35,10 +35,18 @@ app.include_router(interactions.router, prefix="/api/interactions", tags=["Inter
 app.include_router(agent_router, prefix="/api/agent", tags=["AI Agent"])
 
 
+from seed_data import seed
+
+
 @app.on_event("startup")
 def on_startup():
-    """Create all database tables on application startup."""
+    """Create all database tables and seed sample data on startup."""
     Base.metadata.create_all(bind=engine)
+    try:
+        seed()
+    except Exception as e:
+        print(f"Auto-seeding skipped or failed: {e}")
+
 
 
 @app.get("/")
