@@ -10,6 +10,7 @@ export default function ClientLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   const isLoginPage = pathname === '/login';
@@ -47,9 +48,15 @@ export default function ClientLayout({ children }) {
 
   return (
     <div className="app-layout">
-      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
+      {mobileOpen && (
+        <div 
+          className="sidebar-backdrop" 
+          onClick={() => setMobileOpen(false)}
+        ></div>
+      )}
       <div className={`main-layout ${collapsed ? 'sidebar-collapsed' : ''}`}>
-        <Header />
+        <Header onMenuToggle={() => setMobileOpen(!mobileOpen)} />
         <main className="content-container">{children}</main>
       </div>
     </div>

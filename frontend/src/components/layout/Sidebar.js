@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export default function Sidebar({ collapsed, setCollapsed }) {
+export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
   const pathname = usePathname();
 
   const navLinks = [
@@ -20,9 +20,9 @@ export default function Sidebar({ collapsed, setCollapsed }) {
   ];
 
   return (
-    <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
+    <aside className={`sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
       <div className="sidebar-brand flex-between">
-        <Link href="/" className="sidebar-logo">
+        <Link href="/" className="sidebar-logo" onClick={() => setMobileOpen(false)}>
           {!collapsed ? (
             <span className="logo-text">
               Nexus<span className="logo-highlight">CRM</span>
@@ -49,6 +49,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
               href={link.path}
               className={`sidebar-link ${isActive ? 'active' : ''}`}
               title={link.name}
+              onClick={() => setMobileOpen(false)}
             >
               <span className="sidebar-icon">{link.icon}</span>
               {!collapsed && <span className="sidebar-label">{link.name}</span>}

@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getUser, logout } from '@/lib/auth';
 
-export default function Header() {
+export default function Header({ onMenuToggle }) {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState(null);
@@ -51,9 +51,18 @@ export default function Header() {
 
   return (
     <header className="main-header">
-      <div className="header-meta">
-        <h1>{title}</h1>
-        <p>{subtitle}</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <button 
+          className="mobile-menu-toggle"
+          onClick={onMenuToggle}
+          aria-label="Open Menu"
+        >
+          ☰
+        </button>
+        <div className="header-meta">
+          <h1>{title}</h1>
+          <p>{subtitle}</p>
+        </div>
       </div>
 
       <div className="header-actions">
