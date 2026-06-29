@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { login } from '@/lib/auth';
 
@@ -10,6 +10,30 @@ export default function LoginPage() {
   const [password, setPassword] = useState('admin123');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [serverStatus, setServerStatus] = useState('checking'); // 'checking', 'warming', 'ready'
+
+  useEffect(() => {
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api';
+    // Get the base root URL of the API server (e.g. strip "/api")
+    const rootUrl = API_BASE.endsWith('/api') ? API_BASE.slice(0, -4) : API_BASE;
+
+    const pingServer = async () => {
+      try {
+        const res = await fetch(`${rootUrl}/`, { method: 'GET' });
+        if (res.ok) {
+          setServerStatus('ready');
+        } else {
+          setServerStatus('warming');
+        }
+      } catch (err) {
+        setServerStatus('warming');
+        // Retry checking every 4 seconds
+        setTimeout(pingServer, 4000);
+      }
+    };
+
+    pingServer();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,6 +59,24 @@ export default function LoginPage() {
           Nexus<span className="logo-highlight">CRM</span>
         </div>
         <p className="login-subtitle">Autonomous Multi-Agent CRM System</p>
+
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+          {serverStatus === 'checking' && (
+            <span className="badge badge-neutral anim-pulse" style={{ fontSize: '0.75rem', padding: '6px 12px' }}>
+              checking cloud server status...
+            </span>
+          )}
+          {serverStatus === 'warming' && (
+            <span className="badge badge-warning anim-pulse" style={{ fontSize: '0.75rem', padding: '6px 12px', textAlign: 'center', textTransform: 'none' }}>
+              Cloud server waking up... (takes ~50s)
+            </span>
+          )}
+          {serverStatus === 'ready' && (
+            <span className="badge badge-success" style={{ fontSize: '0.75rem', padding: '6px 12px' }}>
+              ✓ Cloud server online
+            </span>
+          )}
+        </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">

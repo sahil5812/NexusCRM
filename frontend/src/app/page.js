@@ -24,6 +24,7 @@ export default function Dashboard() {
   const [data, setData] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showWarmingHint, setShowWarmingHint] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -32,6 +33,11 @@ export default function Dashboard() {
       router.replace('/login');
       return;
     }
+
+    const timer = setTimeout(() => {
+      setShowWarmingHint(true);
+    }, 3000);
+
     async function loadData() {
       try {
         const analyticsData = await api.getAnalytics();
@@ -41,18 +47,26 @@ export default function Dashboard() {
       } catch (e) {
         console.error('Dashboard data load error:', e);
       } finally {
+        clearTimeout(timer);
         setLoading(false);
       }
     }
     loadData();
+
+    return () => clearTimeout(timer);
   }, [router]);
 
   if (!mounted || loading) {
     return (
-      <div className="flex-center" style={{ justifyContent: 'center', height: '60vh', flexDirection: 'column' }}>
+      <div className="flex-center" style={{ justifyContent: 'center', height: '60vh', flexDirection: 'column', gap: '16px' }}>
         <div className="anim-pulse" style={{ fontSize: '1.2rem', color: 'var(--text-secondary)' }}>
           Syncing with Autonomous CRM Agents...
         </div>
+        {showWarmingHint && (
+          <div style={{ fontSize: '0.9rem', color: 'var(--accent-amber)', maxWidth: '420px', textAlign: 'center', lineHeight: '1.4' }}>
+            ⚠️ Cloud server is currently waking up from sleep mode (Render Free Tier cold start takes ~50s). Please stand by...
+          </div>
+        )}
       </div>
     );
   }
